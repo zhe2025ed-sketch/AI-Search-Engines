@@ -306,7 +306,7 @@ class Content_Auditor {
 	}
 
 	/**
-	 * Auto-optimize a post's content and metadata to boost its AI readiness score.
+	 * Auto-optimize a post's metadata and schema settings WITHOUT altering post body content.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return array Updated audit results.
@@ -317,11 +317,30 @@ class Content_Auditor {
 			return false;
 		}
 
-		$content = $post->post_content;
-		$title   = $post->post_title;
+		$content  = $post->post_content;
+		$title    = $post->post_title;
 		$modified = false;
 
-		// 1. Ensure Meta Description (Excerpt) exists and is 120-160 chars.
+		// Clean up any previously auto-injected paragraphs or headings from post_content
+		$pattern_p  = '/<p>[^<]*provides essential insights and structured guidance\.[^<]*<\/p>\s*/i';
+		$pattern_h2 = '/\s*<h2>What is [^<]+\?<\/h2>/i';
+		if ( preg_match( $pattern_p, $content ) || preg_match( $pattern_h2, $content ) ) {
+			$content  = preg_replace( $pattern_p, '', $content );
+			$content  = preg_replace( $pattern_h2, '', $content );
+			$modified = true;
+		}
+
+		// Save cleaned content if auto-injected text was present
+		if ( $modified ) {
+			remove_action( 'save_post', [ $this, 'hook_save_post' ], 10 );
+			wp_update_post( [
+				'ID'           => $post_id,
+				'post_content' => $content,
+			] );
+			add_action( 'save_post', [ $this, 'hook_save_post' ], 10, 3 );
+		}
+
+		// 1. Ensure Meta Description (Excerpt) exists (stored in post_excerpt meta, invisible in post body)
 		$excerpt = get_post_meta( $post_id, '_aioseo_description', true );
 		if ( empty( $excerpt ) ) {
 			$excerpt = $post->post_excerpt;
@@ -332,8 +351,7 @@ class Content_Auditor {
 				$clean_text = $title . ' — Overview and key information about ' . strtolower( $title ) . ' on ' . get_bloginfo( 'name' ) . '.';
 			}
 			if ( mb_strlen( $clean_text ) < 120 ) {
-				$pad = ' Read more to discover detailed guidance, insights, and structural facts regarding ' . strtolower( $title ) . '.';
-				$clean_text .= $pad;
+				$clean_text .= ' Read more to discover detailed guidance, insights, and structural facts regarding ' . strtolower( $title ) . '.';
 			}
 			$new_excerpt = mb_substr( $clean_text, 0, 155 );
 			if ( mb_strlen( $new_excerpt ) === 155 ) {
@@ -345,56 +363,7 @@ class Content_Auditor {
 			] );
 		}
 
-		// Reload post content
-		$post    = get_post( $post_id );
-		$content = $post->post_content;
-
-		// 2. Fix Intro Answer Paragraph (needs 40-300 chars, no ending '?')
-		$first_p = '';
-		if ( preg_match( '/<p[^>]*>(.*?)<\/p>/is', $content, $matches ) ) {
-			$first_p = trim( wp_strip_all_tags( $matches[1] ) );
-		}
-		$len = mb_strlen( $first_p );
-		if ( empty( $first_p ) || $len < 40 || $len > 300 || mb_substr( $first_p, -1 ) === '?' ) {
-			$intro_p = '<p>' . esc_html( $title ) . ' provides essential insights and structured guidance. This page outlines key definitions, step-by-step details, and important takeaways for ' . esc_html( strtolower( $title ) ) . '.</p>';
-			$content  = $intro_p . "\n\n" . $content;
-			$modified = true;
-		}
-
-		// 3. Fix Heading Structure (needs H2 question heading)
-		if ( ! preg_match( '/<h2[^>]*>/is', $content ) ) {
-			$h2_block = "\n\n<h2>What is " . esc_html( $title ) . "?</h2>\n";
-			if ( preg_match( '/<\/p>/is', $content, $p_match, PREG_OFFSET_CAPTURE ) ) {
-				$pos     = $p_match[0][1] + 4;
-				$content = substr_replace( $content, $h2_block, $pos, 0 );
-			} else {
-				$content .= $h2_block;
-			}
-			$modified = true;
-		}
-
-		// 4. Fix Image Alt Text
-		if ( preg_match_all( '/<img[^>]+>/is', $content, $img_matches ) ) {
-			foreach ( $img_matches[0] as $img_tag ) {
-				if ( ! preg_match( '/alt=["\'](.*?)["\']/is', $img_tag, $alt_match ) || trim( $alt_match[1] ) === '' ) {
-					$new_img_tag = preg_replace( '/<img/i', '<img alt="' . esc_attr( $title ) . '"', $img_tag, 1 );
-					$content     = str_replace( $img_tag, $new_img_tag, $content );
-					$modified    = true;
-				}
-			}
-		}
-
-		// Save updated content if modified
-		if ( $modified ) {
-			remove_action( 'save_post', [ $this, 'hook_save_post' ], 10 );
-			wp_update_post( [
-				'ID'           => $post_id,
-				'post_content' => $content,
-			] );
-			add_action( 'save_post', [ $this, 'hook_save_post' ], 10, 3 );
-		}
-
-		// 5. Enable FAQ and HowTo schema flags
+		// 2. Enable FAQ and HowTo schema flags (injects JSON-LD in <head>, completely invisible in post body)
 		update_post_meta( $post_id, '_aise_faq_sections', '1' );
 		update_post_meta( $post_id, '_aise_howto_enabled', '1' );
 
