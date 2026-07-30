@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: AI Search Engines
- * Plugin URI:  https://github.com/anomalyco/ai-search-engines
+ * Plugin URI:  https://github.com/zhe2025ed-sketch/AI-Search-Engines
  * Description: Improve how AI search engines understand, crawl, and cite your website. Adds schema markup, llms.txt, AI sitemap, content auditing, and crawler controls.
  * Version:     1.0.0
- * Author:      NEJTCM
+ * Author:      ZheHuang
  * License:     GPL-2.0+
  * Text Domain: ai-search-engines
  * Domain Path: /languages
