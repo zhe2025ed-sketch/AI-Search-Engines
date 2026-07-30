@@ -148,17 +148,7 @@ class Admin_Dashboard {
 
         ?>
         <div class="wrap aise-dashboard">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h1 style="margin: 0;"><?php esc_html_e('AI Search Visibility Dashboard', 'ai-search-engines'); ?></h1>
-                <div class="aise-header-actions" style="display: flex; gap: 10px;">
-                    <button id="aise-run-audit" class="button button-secondary">
-                        <span class="dashicons dashicons-update" style="margin-top: 3px;"></span> <?php esc_html_e('Run Full Site Audit', 'ai-search-engines'); ?>
-                    </button>
-                    <button id="aise-btn-auto-optimize" class="button button-primary">
-                        <span class="dashicons dashicons-magic" style="margin-top: 3px;"></span> <?php esc_html_e('Auto-Optimize All Posts', 'ai-search-engines'); ?>
-                    </button>
-                </div>
-            </div>
+            <h1><?php esc_html_e('AI Search Visibility Dashboard', 'ai-search-engines'); ?></h1>
 
             <div id="aise-action-status" class="notice notice-info" style="display:none; margin: 15px 0; padding: 12px; font-size: 14px;"></div>
 
@@ -233,9 +223,13 @@ class Admin_Dashboard {
 
             <!-- Quick Actions -->
             <div class="aise-actions">
-                <button type="button" id="aise-run-audit" class="button button-primary button-hero">
+                <button type="button" id="aise-run-audit" class="button button-secondary button-hero">
                     <span class="dashicons dashicons-search"></span>
                     <?php esc_html_e('Run Full Site Audit', 'ai-search-engines'); ?>
+                </button>
+                <button type="button" id="aise-btn-auto-optimize" class="button button-primary button-hero">
+                    <span class="dashicons dashicons-magic"></span>
+                    <?php esc_html_e('Auto-Optimize All Posts', 'ai-search-engines'); ?>
                 </button>
                 <button type="button" id="aise-regen-llms" class="button button-secondary">
                     <span class="dashicons dashicons-media-text"></span>
@@ -249,7 +243,7 @@ class Admin_Dashboard {
                     <span class="dashicons dashicons-admin-generic"></span>
                     <?php esc_html_e('Settings', 'ai-search-engines'); ?>
                 </a>
-                <div id="aise-action-status" class="aise-action-status" style="display:none;"></div>
+            </div>              <div id="aise-action-status" class="aise-action-status" style="display:none;"></div>
             </div>
 
             <!-- Alerts Section -->
