@@ -386,8 +386,8 @@ class Admin_Dashboard {
      * Get CSS class for a score value.
      */
     private function score_class(int $score): string {
-        if ($score >= 70) return 'aise-score-green';
-        if ($score >= 40) return 'aise-score-yellow';
+        if ($score >= 50) return 'aise-score-green';
+        if ($score >= 30) return 'aise-score-yellow';
         return 'aise-score-red';
     }
 }
