@@ -277,80 +277,11 @@ class Admin_Dashboard {
             </div>
             <?php endif; ?>
 
-            <!-- Posts Audit Table -->
-            <div class="aise-section">
-                <h2><?php esc_html_e('Posts by AI Readiness', 'ai-search-engines'); ?></h2>
-                <p class="description"><?php esc_html_e('Sorted by lowest score first — fix these posts to improve your site\'s AI search engine visibility.', 'ai-search-engines'); ?></p>
+            <!-- Posts by AI Readiness -->
+            <?php $this->render_audit_table('post', __('Posts by AI Readiness', 'ai-search-engines'), __('Sorted by lowest score first — fix these posts to improve your AI visibility.', 'ai-search-engines')); ?>
 
-                <table class="wp-list-table widefat fixed striped aise-audit-table">
-                    <thead>
-                        <tr>
-                            <th class="aise-col-score"><?php esc_html_e('Score', 'ai-search-engines'); ?></th>
-                            <th><?php esc_html_e('Title', 'ai-search-engines'); ?></th>
-                            <th><?php esc_html_e('Type', 'ai-search-engines'); ?></th>
-                            <th><?php esc_html_e('Issues', 'ai-search-engines'); ?></th>
-                            <th class="aise-col-actions"><?php esc_html_e('Actions', 'ai-search-engines'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ($worst_posts->have_posts()): ?>
-                            <?php while ($worst_posts->have_posts()): $worst_posts->the_post(); ?>
-                                <?php
-                                $pid     = get_the_ID();
-                                $score   = (int) get_post_meta($pid, '_aise_audit_score', true);
-                                $details = get_post_meta($pid, '_aise_audit_details', true);
-                                $checks  = is_array($details) && isset($details['checks']) ? $details['checks'] : [];
-                                $fails   = [];
-                                foreach ($checks as $name => $check) {
-                                    if (isset($check['status']) && $check['status'] === 'fail') {
-                                        $fails[] = isset($check['message']) ? $check['message'] : $name;
-                                    }
-                                }
-                                ?>
-                                <tr>
-                                    <td class="aise-col-score">
-                                        <span class="aise-score-badge <?php echo esc_attr($this->score_class($score)); ?>">
-                                            <?php echo esc_html($score); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <strong><a href="<?php echo esc_url(get_permalink($pid)); ?>" target="_blank"><?php the_title(); ?></a></strong>
-                                    </td>
-                                    <td><?php echo esc_html(get_post_type_object(get_post_type())->labels->singular_name); ?></td>
-                                    <td>
-                                        <?php if (!empty($fails)): ?>
-                                            <ul class="aise-issues-list">
-                                                <?php foreach (array_slice($fails, 0, 3) as $f): ?>
-                                                    <li><?php echo esc_html($f); ?></li>
-                                                <?php endforeach; ?>
-                                                <?php if (count($fails) > 3): ?>
-                                                    <li><em><?php printf(esc_html__('+%d more', 'ai-search-engines'), count($fails) - 3); ?></em></li>
-                                                <?php endif; ?>
-                                            </ul>
-                                        <?php elseif ($score === 0): ?>
-                                            <span class="description"><?php esc_html_e('Not yet audited', 'ai-search-engines'); ?></span>
-                                        <?php else: ?>
-                                            <span class="aise-all-pass"><?php esc_html_e('All checks passed', 'ai-search-engines'); ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="aise-col-actions">
-                                        <a href="<?php echo esc_url(get_edit_post_link($pid, 'raw')); ?>" class="button button-small">
-                                            <?php esc_html_e('Edit', 'ai-search-engines'); ?>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                            <?php wp_reset_postdata(); ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5">
-                                    <?php esc_html_e('No audited posts found. Run a site audit to get started.', 'ai-search-engines'); ?>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+            <!-- Pages by AI Readiness -->
+            <?php $this->render_audit_table('page', __('Pages by AI Readiness', 'ai-search-engines'), __('Sorted by lowest score first — fix these pages to improve your AI visibility.', 'ai-search-engines')); ?>
 
             <!-- Robots.txt Preview -->
             <div class="aise-section">
@@ -358,6 +289,95 @@ class Admin_Dashboard {
                 <p class="description"><?php esc_html_e('These directives are appended to your robots.txt for AI search engine crawlers.', 'ai-search-engines'); ?></p>
                 <pre class="aise-robots-preview"><?php echo esc_html($robots->get_effective_robots()); ?></pre>
             </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Render an audit table for a specific post type.
+     */
+    private function render_audit_table(string $post_type, string $title, string $description) {
+        $query = new \WP_Query([
+            'post_type'      => $post_type,
+            'post_status'    => 'publish',
+            'posts_per_page' => 15,
+            'meta_key'       => '_aise_audit_score',
+            'orderby'        => 'meta_value_num',
+            'order'          => 'ASC',
+        ]);
+        ?>
+        <div class="aise-section">
+            <h2><?php echo esc_html($title); ?></h2>
+            <p class="description"><?php echo esc_html($description); ?></p>
+
+            <table class="wp-list-table widefat fixed striped aise-audit-table">
+                <thead>
+                    <tr>
+                        <th class="aise-col-score"><?php esc_html_e('Score', 'ai-search-engines'); ?></th>
+                        <th><?php esc_html_e('Title', 'ai-search-engines'); ?></th>
+                        <th><?php esc_html_e('Type', 'ai-search-engines'); ?></th>
+                        <th><?php esc_html_e('Issues', 'ai-search-engines'); ?></th>
+                        <th class="aise-col-actions"><?php esc_html_e('Actions', 'ai-search-engines'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($query->have_posts()): ?>
+                        <?php while ($query->have_posts()): $query->the_post(); ?>
+                            <?php
+                            $pid     = get_the_ID();
+                            $score   = (int) get_post_meta($pid, '_aise_audit_score', true);
+                            $details = get_post_meta($pid, '_aise_audit_details', true);
+                            $checks  = is_array($details) && isset($details['checks']) ? $details['checks'] : (is_array($details) ? $details : []);
+                            $fails   = [];
+                            foreach ($checks as $name => $check) {
+                                if (isset($check['status']) && $check['status'] === 'fail') {
+                                    $fails[] = isset($check['message']) ? $check['message'] : $name;
+                                }
+                            }
+                            ?>
+                            <tr>
+                                <td class="aise-col-score">
+                                    <span class="aise-score-badge <?php echo esc_attr($this->score_class($score)); ?>">
+                                        <?php echo esc_html($score); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong><a href="<?php echo esc_url(get_permalink($pid)); ?>" target="_blank"><?php the_title(); ?></a></strong>
+                                </td>
+                                <td><?php echo esc_html(get_post_type_object(get_post_type())->labels->singular_name); ?></td>
+                                <td>
+                                    <?php if (!empty($fails)): ?>
+                                        <ul class="aise-issues-list">
+                                            <?php foreach (array_slice($fails, 0, 3) as $f): ?>
+                                                <li><?php echo esc_html($f); ?></li>
+                                            <?php endforeach; ?>
+                                            <?php if (count($fails) > 3): ?>
+                                                <li><em><?php printf(esc_html__('+%d more', 'ai-search-engines'), count($fails) - 3); ?></em></li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    <?php elseif ($score === 0): ?>
+                                        <span class="description"><?php esc_html_e('Not yet audited', 'ai-search-engines'); ?></span>
+                                    <?php else: ?>
+                                        <span class="aise-all-pass"><?php esc_html_e('All checks passed', 'ai-search-engines'); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="aise-col-actions">
+                                    <a href="<?php echo esc_url(get_edit_post_link($pid, 'raw')); ?>" class="button button-small">
+                                        <?php esc_html_e('Edit', 'ai-search-engines'); ?>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                        <?php wp_reset_postdata(); ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5">
+                                <?php printf(esc_html__('No audited %s found. Run a site audit to get started.', 'ai-search-engines'), strtolower($title)); ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
         <?php
     }
