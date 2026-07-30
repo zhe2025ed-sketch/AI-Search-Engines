@@ -44,7 +44,7 @@ class Admin_Dashboard {
      * Enqueue dashboard CSS and JS.
      */
     public function enqueue_assets($hook) {
-        if ($hook !== 'toplevel_page_aise-dashboard') {
+        if (strpos($hook, 'aise-dashboard') === false) {
             return;
         }
 
@@ -52,14 +52,14 @@ class Admin_Dashboard {
             'aise-dashboard-css',
             AISE_URL . 'assets/css/admin-dashboard.css',
             [],
-            AISE_VERSION
+            AISE_VERSION . '.' . time()
         );
 
         wp_enqueue_script(
             'aise-dashboard-js',
             AISE_URL . 'assets/js/admin-dashboard.js',
             ['jquery'],
-            AISE_VERSION,
+            AISE_VERSION . '.' . time(),
             true
         );
 
@@ -159,6 +159,8 @@ class Admin_Dashboard {
                     </button>
                 </div>
             </div>
+
+            <div id="aise-action-status" class="notice notice-info" style="display:none; margin: 15px 0; padding: 12px; font-size: 14px;"></div>
 
             <!-- Score Overview Cards -->
             <div class="aise-cards">
