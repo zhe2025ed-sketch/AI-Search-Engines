@@ -1,0 +1,162 @@
+/**
+ * AI Search Engines — Post Meta Box Styles
+ * Compact sidebar layout for the post editor.
+ */
+
+/* ── Meta Box Container ────────────────────────────────────────────────── */
+
+.aise-meta-box {
+    padding: 0;
+}
+
+/* ── Score Display ─────────────────────────────────────────────────────── */
+
+.aise-mb-score {
+    text-align: center;
+    padding: 16px 12px;
+    border-bottom: 1px solid #dcdcde;
+    background: #f6f7f7;
+}
+
+.aise-mb-score-circle {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 4px solid #ddd;
+    margin-bottom: 6px;
+}
+
+.aise-mb-score-circle.aise-green {
+    border-color: #00a32a;
+    background: rgba(0, 163, 42, 0.06);
+}
+
+.aise-mb-score-circle.aise-yellow {
+    border-color: #dba617;
+    background: rgba(219, 166, 23, 0.06);
+}
+
+.aise-mb-score-circle.aise-red {
+    border-color: #d63638;
+    background: rgba(214, 54, 56, 0.06);
+}
+
+.aise-mb-score-num {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.aise-green .aise-mb-score-num { color: #00a32a; }
+.aise-yellow .aise-mb-score-num { color: #996800; }
+.aise-red .aise-mb-score-num { color: #d63638; }
+
+.aise-mb-score-text {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #646970;
+    margin-top: 2px;
+}
+
+.aise-mb-not-audited {
+    text-align: center;
+    padding: 20px 12px;
+    border-bottom: 1px solid #dcdcde;
+    background: #f6f7f7;
+    color: #646970;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* ── Checklist ─────────────────────────────────────────────────────────── */
+
+.aise-mb-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.aise-mb-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 12px;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.aise-mb-checklist li:last-child {
+    border-bottom: none;
+}
+
+.aise-mb-check-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1;
+    margin-top: 1px;
+}
+
+.aise-mb-check-icon.aise-pass { color: #00a32a; }
+.aise-mb-check-icon.aise-warn { color: #dba617; }
+.aise-mb-check-icon.aise-fail { color: #d63638; }
+
+.aise-mb-check-name {
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.aise-mb-check-msg {
+    color: #646970;
+}
+
+/* ── Schema Toggles ────────────────────────────────────────────────────── */
+
+.aise-mb-toggles {
+    padding: 10px 12px;
+    border-top: 1px solid #dcdcde;
+    background: #f6f7f7;
+}
+
+.aise-mb-toggles label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+
+.aise-mb-toggles label:last-child {
+    margin-bottom: 0;
+}
+
+.aise-mb-toggles input[type="checkbox"] {
+    margin: 0;
+}
+
+/* ── Actions ───────────────────────────────────────────────────────────── */
+
+.aise-mb-actions {
+    padding: 10px 12px;
+    border-top: 1px solid #dcdcde;
+    text-align: center;
+}
+
+.aise-mb-actions .button {
+    width: 100%;
+}
+
+.aise-mb-status {
+    margin-top: 6px;
+    font-size: 11px;
+    text-align: center;
+}
+
+.aise-mb-status.aise-success { color: #00a32a; }
+.aise-mb-status.aise-error { color: #d63638; }

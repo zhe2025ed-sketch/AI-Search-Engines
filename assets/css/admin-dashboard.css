@@ -1,0 +1,402 @@
+/**
+ * AI Search Engines — Admin Dashboard Styles
+ * Designed to integrate naturally with the WordPress admin color scheme.
+ */
+
+/* ── Layout ────────────────────────────────────────────────────────────── */
+
+.aise-dashboard {
+    max-width: 1400px;
+}
+
+.aise-dashboard h1 {
+    margin-bottom: 20px;
+    font-size: 23px;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+/* ── Cards Row ─────────────────────────────────────────────────────────── */
+
+.aise-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.aise-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.aise-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1d2327;
+}
+
+.aise-card-subtitle {
+    color: #646970;
+    margin: 8px 0 0;
+    font-size: 13px;
+}
+
+/* ── Score Circle ──────────────────────────────────────────────────────── */
+
+.aise-card-score {
+    text-align: center;
+}
+
+.aise-score-circle {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 6px solid #ddd;
+    margin-bottom: 12px;
+}
+
+.aise-score-circle.aise-score-green {
+    border-color: #00a32a;
+    background: rgba(0, 163, 42, 0.04);
+}
+
+.aise-score-circle.aise-score-yellow {
+    border-color: #dba617;
+    background: rgba(219, 166, 23, 0.04);
+}
+
+.aise-score-circle.aise-score-red {
+    border-color: #d63638;
+    background: rgba(214, 54, 56, 0.04);
+}
+
+.aise-score-number {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.aise-score-green .aise-score-number { color: #00a32a; }
+.aise-score-yellow .aise-score-number { color: #996800; }
+.aise-score-red .aise-score-number { color: #d63638; }
+
+.aise-score-label {
+    font-size: 12px;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* ── Distribution ──────────────────────────────────────────────────────── */
+
+.aise-distribution {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.aise-dist-bar {
+    height: 12px;
+    background: #f0f0f1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.aise-dist-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.6s ease;
+    min-width: 2px;
+}
+
+.aise-dist-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.aise-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #50575e;
+}
+
+.aise-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.aise-dot.aise-score-green { background: #00a32a; }
+.aise-dot.aise-score-blue  { background: #2271b1; }
+.aise-dot.aise-score-yellow { background: #dba617; }
+.aise-dot.aise-score-red   { background: #d63638; }
+
+#aise-donut-chart {
+    margin: 8px auto 0;
+    display: block;
+}
+
+/* ── Feature List ──────────────────────────────────────────────────────── */
+
+.aise-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.aise-feature-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.aise-feature-list li:last-child {
+    border-bottom: none;
+}
+
+.aise-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aise-badge-on {
+    background: #edfaef;
+    color: #00a32a;
+    border: 1px solid #00a32a;
+}
+
+.aise-badge-off {
+    background: #fcf0f1;
+    color: #d63638;
+    border: 1px solid #d63638;
+}
+
+/* ── Quick Actions ─────────────────────────────────────────────────────── */
+
+.aise-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.aise-actions .button .dashicons {
+    margin-right: 4px;
+    vertical-align: text-bottom;
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+}
+
+.aise-action-status {
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.aise-action-status.aise-status-running {
+    background: #f0f6fc;
+    color: #2271b1;
+    border: 1px solid #2271b1;
+}
+
+.aise-action-status.aise-status-success {
+    background: #edfaef;
+    color: #00a32a;
+    border: 1px solid #00a32a;
+}
+
+.aise-action-status.aise-status-error {
+    background: #fcf0f1;
+    color: #d63638;
+    border: 1px solid #d63638;
+}
+
+/* ── Alerts ─────────────────────────────────────────────────────────────── */
+
+.aise-alert {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border-left: 4px solid;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.aise-alert .dashicons {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.aise-alert-info {
+    background: #f0f6fc;
+    border-color: #2271b1;
+    color: #135e96;
+}
+
+.aise-alert-warning {
+    background: #fcf9e8;
+    border-color: #dba617;
+    color: #996800;
+}
+
+.aise-noindex-list {
+    margin: 6px 0 0 24px;
+    padding: 0;
+}
+
+.aise-noindex-list li {
+    margin-bottom: 2px;
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────── */
+
+.aise-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.aise-section h2 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.aise-section > .description {
+    margin-bottom: 16px;
+}
+
+/* ── Audit Table ───────────────────────────────────────────────────────── */
+
+.aise-audit-table .aise-col-score {
+    width: 70px;
+    text-align: center;
+}
+
+.aise-audit-table .aise-col-actions {
+    width: 80px;
+    text-align: center;
+}
+
+.aise-score-badge {
+    display: inline-block;
+    min-width: 32px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    color: #fff;
+}
+
+.aise-score-badge.aise-score-green { background: #00a32a; }
+.aise-score-badge.aise-score-yellow { background: #dba617; color: #1d2327; }
+.aise-score-badge.aise-score-red { background: #d63638; }
+
+.aise-issues-list {
+    margin: 0;
+    padding: 0 0 0 16px;
+    font-size: 12px;
+    color: #646970;
+}
+
+.aise-issues-list li {
+    margin-bottom: 2px;
+}
+
+.aise-all-pass {
+    color: #00a32a;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ── Robots Preview ────────────────────────────────────────────────────── */
+
+.aise-robots-preview {
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+    padding: 14px 18px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+    color: #1d2327;
+}
+
+/* ── Loading Spinner ───────────────────────────────────────────────────── */
+
+.aise-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #2271b1;
+    border-radius: 50%;
+    animation: aise-spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+@keyframes aise-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media screen and (max-width: 782px) {
+    .aise-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .aise-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .aise-actions .button {
+        text-align: center;
+    }
+}
