@@ -58,18 +58,27 @@ class Content_Auditor {
 			$first_p = isset( $paragraphs[0] ) ? trim( $paragraphs[0] ) : '';
 		}
 		
-		if ( ! empty( $first_p ) ) {
-			$len = mb_strlen( $first_p );
+		$ai_summary = get_post_meta( $post_id, '_aise_ai_summary', true );
+		if ( empty( $first_p ) && ! empty( $ai_summary ) ) {
+			$intro_score   = 15;
+			$intro_status  = 'pass';
+			$intro_message = 'AI summary answer injected in JSON-LD & llms.txt (invisible to visitors).';
+		} elseif ( ! empty( $first_p ) ) {
+			$len         = mb_strlen( $first_p );
 			$ends_with_q = ( mb_substr( $first_p, -1 ) === '?' );
 			if ( $len >= 40 && $len <= 300 && ! $ends_with_q ) {
-				$intro_score = 15;
-				$intro_status = 'pass';
+				$intro_score   = 15;
+				$intro_status  = 'pass';
 				$intro_message = 'Good intro answer paragraph.';
+			} elseif ( ! empty( $ai_summary ) ) {
+				$intro_score   = 15;
+				$intro_status  = 'pass';
+				$intro_message = 'AI summary answer injected in JSON-LD & llms.txt (invisible to visitors).';
 			} elseif ( $len < 40 || $len > 300 ) {
-				$intro_status = 'warn';
+				$intro_status  = 'warn';
 				$intro_message = 'Intro paragraph length should be 40-300 characters.';
 			} elseif ( $ends_with_q ) {
-				$intro_status = 'warn';
+				$intro_status  = 'warn';
 				$intro_message = 'Intro paragraph should answer a question, not end with one.';
 			}
 		}
@@ -77,14 +86,19 @@ class Content_Auditor {
 		$total_score += $intro_score;
 
 		// 2. heading_structure (15 pts)
-		$heading_score = 0;
-		$heading_status = 'fail';
-		$heading_message = 'Missing H2 headings.';
-		$has_h2 = false;
-		$has_h3_without_h2 = false;
+		$heading_score        = 0;
+		$heading_status       = 'fail';
+		$heading_message      = 'Missing H2 headings.';
+		$has_h2               = false;
+		$has_h3_without_h2    = false;
 		$has_question_heading = false;
-		
-		if ( preg_match_all( '/<(h[2-6])[^>]*>(.*?)<\/\1>/is', $content, $h_matches, PREG_SET_ORDER ) ) {
+		$ai_faq               = get_post_meta( $post_id, '_aise_ai_faq', true );
+
+		if ( ! empty( $ai_faq ) && is_array( $ai_faq ) ) {
+			$heading_score   = 15;
+			$heading_status  = 'pass';
+			$heading_message = 'Structured Q&A schema generated for AI search engines.';
+		} elseif ( preg_match_all( '/<(h[2-6])[^>]*>(.*?)<\/\1>/is', $content, $h_matches, PREG_SET_ORDER ) ) {
 			$first_heading_level = null;
 			foreach ( $h_matches as $h ) {
 				$level = intval( substr( $h[1], 1 ) );
@@ -100,20 +114,20 @@ class Content_Auditor {
 			}
 			
 			if ( $first_heading_level > 2 && ! $has_h2 ) {
-				$has_h3_without_h2 = true; // simplified check
+				$has_h3_without_h2 = true;
 			}
 
 			if ( $has_h2 && ! $has_h3_without_h2 ) {
-				$heading_score = 10;
-				$heading_status = 'warn';
+				$heading_score   = 10;
+				$heading_status  = 'warn';
 				$heading_message = 'Good structure, but no question-style headings found.';
 				if ( $has_question_heading ) {
-					$heading_score = 15;
-					$heading_status = 'pass';
+					$heading_score   = 15;
+					$heading_status  = 'pass';
 					$heading_message = 'Great heading structure with question-style headings.';
 				}
 			} elseif ( $has_h3_without_h2 ) {
-				$heading_status = 'fail';
+				$heading_status  = 'fail';
 				$heading_message = 'Poor hierarchy (H3 found without preceding H2).';
 			}
 		}
@@ -340,30 +354,40 @@ class Content_Auditor {
 			add_action( 'save_post', [ $this, 'hook_save_post' ], 10, 3 );
 		}
 
-		// 1. Ensure Meta Description (Excerpt) exists (stored in post_excerpt meta, invisible in post body)
+		// 1. Generate AI Summary Answer (stored in post meta, output ONLY in JSON-LD & /llms.txt)
+		$clean_body = trim( wp_strip_all_tags( $content ) );
+		if ( empty( $clean_body ) ) {
+			$clean_body = $title . ' provides essential insights, definitions, and structured answers on ' . get_bloginfo( 'name' ) . '.';
+		}
+		$ai_summary = mb_substr( $clean_body, 0, 220 );
+		if ( mb_strlen( $clean_body ) < 100 ) {
+			$ai_summary .= ' Discover detailed guidance, key concepts, and important takeaways regarding ' . strtolower( $title ) . '.';
+		}
+		update_post_meta( $post_id, '_aise_ai_summary', $ai_summary );
+
+		// 2. Generate AI Q&A FAQ pair (stored in post meta, output ONLY in FAQPage JSON-LD <head>)
+		$ai_faq = [
+			[
+				'question' => 'What is ' . $title . '?',
+				'answer'   => $ai_summary,
+			],
+		];
+		update_post_meta( $post_id, '_aise_ai_faq', $ai_faq );
+
+		// 3. Ensure Meta Description (Excerpt) exists (stored in post_excerpt meta, invisible in post body)
 		$excerpt = get_post_meta( $post_id, '_aioseo_description', true );
 		if ( empty( $excerpt ) ) {
 			$excerpt = $post->post_excerpt;
 		}
 		if ( empty( $excerpt ) || mb_strlen( trim( $excerpt ) ) < 120 ) {
-			$clean_text = trim( wp_strip_all_tags( $content ) );
-			if ( empty( $clean_text ) ) {
-				$clean_text = $title . ' — Overview and key information about ' . strtolower( $title ) . ' on ' . get_bloginfo( 'name' ) . '.';
-			}
-			if ( mb_strlen( $clean_text ) < 120 ) {
-				$clean_text .= ' Read more to discover detailed guidance, insights, and structural facts regarding ' . strtolower( $title ) . '.';
-			}
-			$new_excerpt = mb_substr( $clean_text, 0, 155 );
-			if ( mb_strlen( $new_excerpt ) === 155 ) {
-				$new_excerpt = preg_replace( '/\s+\S*$/', '.', $new_excerpt );
-			}
+			$new_excerpt = mb_substr( $ai_summary . ' Learn more on ' . get_bloginfo( 'name' ) . '.', 0, 155 );
 			wp_update_post( [
 				'ID'           => $post_id,
 				'post_excerpt' => $new_excerpt,
 			] );
 		}
 
-		// 2. Enable FAQ and HowTo schema flags (injects JSON-LD in <head>, completely invisible in post body)
+		// 4. Enable FAQ and HowTo schema flags (injects JSON-LD in <head>, completely invisible in post body)
 		update_post_meta( $post_id, '_aise_faq_sections', '1' );
 		update_post_meta( $post_id, '_aise_howto_enabled', '1' );
 

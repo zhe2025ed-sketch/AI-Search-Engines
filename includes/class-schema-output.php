@@ -198,6 +198,12 @@ class Schema_Output {
 			}
 		}
 
+		$ai_summary = get_post_meta( $post->ID, '_aise_ai_summary', true );
+		if ( ! empty( $ai_summary ) ) {
+			$schema['description'] = esc_html( $ai_summary );
+			$schema['abstract']    = esc_html( $ai_summary );
+		}
+
 		$this->print_json_ld( $schema );
 	}
 
@@ -283,10 +289,15 @@ class Schema_Output {
 		}
 
 		$faq_sections = get_post_meta( $post->ID, '_aise_faq_sections', true );
+		$ai_faq       = get_post_meta( $post->ID, '_aise_ai_faq', true );
 		$questions_answers = [];
 
+		if ( ! empty( $ai_faq ) && is_array( $ai_faq ) ) {
+			$questions_answers = array_merge( $questions_answers, $ai_faq );
+		}
+
 		if ( ! empty( $faq_sections ) && is_array( $faq_sections ) ) {
-			$questions_answers = $faq_sections;
+			$questions_answers = array_merge( $questions_answers, $faq_sections );
 		} else {
 			// Auto-detect from content.
 			$content = $post->post_content;

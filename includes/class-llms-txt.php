@@ -76,10 +76,11 @@ class Llms_Txt {
 		] );
 
 		foreach ( $pages as $page ) {
-			$url     = get_permalink( $page->ID );
-			$excerpt = ! empty( $page->post_excerpt ) ? $page->post_excerpt : wp_trim_words( $page->post_content, 20 );
-			$excerpt = substr( strip_tags( $excerpt ), 0, 100 );
-			$content .= "- [{$page->post_title}]({$url}): {$excerpt}\n";
+			$url        = get_permalink( $page->ID );
+			$ai_summary = get_post_meta( $page->ID, '_aise_ai_summary', true );
+			$excerpt    = ! empty( $ai_summary ) ? $ai_summary : ( ! empty( $page->post_excerpt ) ? $page->post_excerpt : wp_trim_words( $page->post_content, 20 ) );
+			$excerpt    = substr( strip_tags( $excerpt ), 0, 150 );
+			$content   .= "- [{$page->post_title}]({$url}): {$excerpt}\n";
 		}
 
 		$content .= "\n## Latest Articles\n\n";
@@ -93,10 +94,11 @@ class Llms_Txt {
 		] );
 
 		foreach ( $posts as $post ) {
-			$url     = get_permalink( $post->ID );
-			$excerpt = ! empty( $post->post_excerpt ) ? $post->post_excerpt : wp_trim_words( $post->post_content, 20 );
-			$excerpt = substr( strip_tags( $excerpt ), 0, 100 );
-			$content .= "- [{$post->post_title}]({$url}): {$excerpt}\n";
+			$url        = get_permalink( $post->ID );
+			$ai_summary = get_post_meta( $post->ID, '_aise_ai_summary', true );
+			$excerpt    = ! empty( $ai_summary ) ? $ai_summary : ( ! empty( $post->post_excerpt ) ? $post->post_excerpt : wp_trim_words( $post->post_content, 20 ) );
+			$excerpt    = substr( strip_tags( $excerpt ), 0, 150 );
+			$content   .= "- [{$post->post_title}]({$url}): {$excerpt}\n";
 		}
 
 		$content .= "\n## Categories\n\n";
