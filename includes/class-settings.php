@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 class Settings {
 
 	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_menu_pages' ] );
+		add_action( 'admin_menu', [ $this, 'add_menu_pages' ], 15 );
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
 		add_filter( 'plugin_action_links_' . plugin_basename( AISE_FILE ), [ $this, 'add_plugin_action_links' ] );
 	}
@@ -28,7 +28,7 @@ class Settings {
 	}
 
 	public function add_plugin_action_links( $links ) {
-		$settings_link = '<a href="admin.php?page=aise-settings">' . esc_html__( 'Settings', 'ai-search-engines' ) . '</a>';
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=aise-settings' ) ) . '">' . esc_html__( 'Settings', 'ai-search-engines' ) . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
 	}

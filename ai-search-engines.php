@@ -107,8 +107,8 @@ register_deactivation_hook(__FILE__, function () {
 
 // ── Bootstrap modules ───────────────────────────────────────────────────────
 add_action('plugins_loaded', function () {
-    new AISearchEngines\Settings();
     new AISearchEngines\Admin_Dashboard();
+    new AISearchEngines\Settings();
     new AISearchEngines\Schema_Output();
     new AISearchEngines\Meta_Optimizer();
     new AISearchEngines\Content_Auditor();
