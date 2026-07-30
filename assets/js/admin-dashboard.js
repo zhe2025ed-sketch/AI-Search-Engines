@@ -29,14 +29,10 @@
     $(document).on('click', '#aise-run-audit, #aise-btn-auto-optimize', function () {
         var isAutoOpt  = $(this).attr('id') === 'aise-btn-auto-optimize';
         var actionName = isAutoOpt ? 'aise_auto_optimize' : 'aise_run_audit';
-        var promptMsg  = isAutoOpt ? 'Auto-optimize content structure for all published posts to boost AI readiness scores?' : config.strings.confirm_audit;
-
-        if (!confirm(promptMsg)) {
-            return;
-        }
+        var runningMsg = isAutoOpt ? 'Auto-optimizing all posts…' : (config.strings ? config.strings.running : 'Running audit…');
 
         var $btn = $(this).prop('disabled', true);
-        showStatus(config.strings.running, 'running');
+        showStatus(runningMsg, 'running');
 
         $.post(config.ajax_url, {
             action: actionName,
@@ -46,17 +42,17 @@
             if (response.success) {
                 showStatus(
                     (response.data.message || config.strings.complete) +
-                    ' — <strong>' + response.data.average_score + '/100</strong> average.',
+                    ' — <strong>' + response.data.average_score + '/100</strong> average score.',
                     'success'
                 );
                 // Refresh the page to show updated data
                 setTimeout(function () { location.reload(); }, 2000);
             } else {
-                showStatus(response.data.message || config.strings.error, 'error');
+                showStatus(response.data ? response.data.message : config.strings.error, 'error');
             }
         })
         .fail(function () {
-            showStatus(config.strings.error, 'error');
+            showStatus(config.strings ? config.strings.error : 'An error occurred.', 'error');
         })
         .always(function () {
             $btn.prop('disabled', false);
