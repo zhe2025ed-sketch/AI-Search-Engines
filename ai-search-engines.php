@@ -3,7 +3,7 @@
  * Plugin Name: AI Search Engines
  * Plugin URI:  https://github.com/zhe2025ed-sketch/AI-Search-Engines
  * Description: Improve how AI search engines understand, crawl, and cite your website. Adds schema markup, llms.txt, AI sitemap, content auditing, and crawler controls.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      ZheHuang
  * License:     GPL-2.0+
  * Text Domain: ai-search-engines
@@ -12,7 +12,7 @@
 
 defined('ABSPATH') || exit;
 
-define('AISE_VERSION', '1.0.0');
+define('AISE_VERSION', '1.1.0');
 define('AISE_FILE', __FILE__);
 define('AISE_PATH', plugin_dir_path(__FILE__));
 define('AISE_URL', plugin_dir_url(__FILE__));
