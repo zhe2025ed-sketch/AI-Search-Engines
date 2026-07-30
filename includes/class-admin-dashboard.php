@@ -279,8 +279,8 @@ class Admin_Dashboard {
 
             <!-- Posts Audit Table -->
             <div class="aise-section">
-                <h2><?php esc_html_e('Pages by AI Readiness', 'ai-search-engines'); ?></h2>
-                <p class="description"><?php esc_html_e('Sorted by lowest score first — fix these pages to improve your AI visibility.', 'ai-search-engines'); ?></p>
+                <h2><?php esc_html_e('Posts by AI Readiness', 'ai-search-engines'); ?></h2>
+                <p class="description"><?php esc_html_e('Sorted by lowest score first — fix these posts to improve your site\'s AI search engine visibility.', 'ai-search-engines'); ?></p>
 
                 <table class="wp-list-table widefat fixed striped aise-audit-table">
                     <thead>
