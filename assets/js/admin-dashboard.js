@@ -24,10 +24,14 @@
         }
     }
 
-    /* ── Run Full Site Audit ────────────────────────────────────────────── */
+    /* ── Run Full Site Audit & Auto-Optimize ────────────────────────────── */
 
-    $('#aise-run-audit').on('click', function () {
-        if (!confirm(config.strings.confirm_audit)) {
+    $(document).on('click', '#aise-run-audit, #aise-btn-auto-optimize', function () {
+        var isAutoOpt  = $(this).attr('id') === 'aise-btn-auto-optimize';
+        var actionName = isAutoOpt ? 'aise_auto_optimize' : 'aise_run_audit';
+        var promptMsg  = isAutoOpt ? 'Auto-optimize content structure for all published posts to boost AI readiness scores?' : config.strings.confirm_audit;
+
+        if (!confirm(promptMsg)) {
             return;
         }
 
@@ -35,13 +39,13 @@
         showStatus(config.strings.running, 'running');
 
         $.post(config.ajax_url, {
-            action: 'aise_run_audit',
-            nonce: config.nonce
+            action: actionName,
+            nonce:  config.nonce
         })
         .done(function (response) {
             if (response.success) {
                 showStatus(
-                    config.strings.complete + ' ' + response.data.message +
+                    (response.data.message || config.strings.complete) +
                     ' — <strong>' + response.data.average_score + '/100</strong> average.',
                     'success'
                 );

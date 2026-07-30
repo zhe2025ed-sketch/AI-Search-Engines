@@ -99,4 +99,32 @@
         return div.innerHTML;
     }
 
+    /* ── Auto-Optimize Single Post ──────────────────────────────────────── */
+
+    $(document).on('click', '.aise-auto-optimize-single', function (e) {
+        e.preventDefault();
+
+        var $btn   = $(this).prop('disabled', true).text('Optimizing…');
+        var postId = $btn.data('post-id') || $('#post_ID').val();
+
+        $.post(config.ajax_url, {
+            action:  'aise_auto_optimize_single',
+            nonce:   config.nonce,
+            post_id: postId
+        })
+        .done(function (response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                alert(response.data ? response.data.message : 'Optimization failed.');
+            }
+        })
+        .fail(function () {
+            alert('Server error occurred.');
+        })
+        .always(function () {
+            $btn.prop('disabled', false).text('Auto-Optimize');
+        });
+    });
+
 })(jQuery);

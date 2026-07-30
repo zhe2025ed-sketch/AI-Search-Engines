@@ -12,7 +12,9 @@ class Ajax_Handler {
 
     public function __construct() {
         add_action('wp_ajax_aise_run_audit',       [$this, 'run_audit']);
+        add_action('wp_ajax_aise_auto_optimize',   [$this, 'auto_optimize']);
         add_action('wp_ajax_aise_audit_single',    [$this, 'audit_single']);
+        add_action('wp_ajax_aise_auto_optimize_single', [$this, 'auto_optimize_single']);
         add_action('wp_ajax_aise_generate_llms',   [$this, 'generate_llms']);
         add_action('wp_ajax_aise_generate_sitemap', [$this, 'generate_sitemap']);
         add_action('wp_ajax_aise_get_audit_data',  [$this, 'get_audit_data']);
@@ -198,6 +200,80 @@ class Ajax_Handler {
             'orphans' => $orphan_list,
             'weak'    => $weak_list,
         ]);
+    }
+
+    /**
+     * Auto-optimize all posts via AJAX.
+     */
+    public function auto_optimize() {
+        $this->verify_request('aise_dashboard_nonce');
+
+        $auditor = new Content_Auditor();
+        $results = $auditor->auto_optimize_all_posts();
+
+        $total  = count($results);
+        $sum    = array_sum($results);
+        $avg    = $total > 0 ? round($sum / $total) : 0;
+
+        $distribution = [
+            'excellent'  => 0,
+            'good'       => 0,
+            'needs_work' => 0,
+            'poor'       => 0,
+        ];
+
+        foreach ($results as $score) {
+            if ($score >= 80) {
+                $distribution['excellent']++;
+            } elseif ($score >= 60) {
+                $distribution['good']++;
+            } elseif ($score >= 40) {
+                $distribution['needs_work']++;
+            } else {
+                $distribution['poor']++;
+            }
+        }
+
+        wp_send_json_success([
+            'total_posts'   => $total,
+            'average_score' => $avg,
+            'distribution'  => $distribution,
+            'message'       => sprintf(
+                __('Auto-optimization complete! %d posts updated and re-audited.', 'ai-search-engines'),
+                $total
+            ),
+        ]);
+    }
+
+    /**
+     * Auto-optimize single post via AJAX.
+     */
+    public function auto_optimize_single() {
+        if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'aise_meta_nonce')) {
+            // Meta box nonce
+        } elseif (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'aise_dashboard_nonce')) {
+            // Dashboard nonce
+        } else {
+            wp_send_json_error(['message' => __('Security check failed.', 'ai-search-engines')], 403);
+        }
+
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        if (!$post_id) {
+            wp_send_json_error(['message' => __('Invalid post ID.', 'ai-search-engines')]);
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_send_json_error(['message' => __('Permission denied.', 'ai-search-engines')]);
+        }
+
+        $auditor = new Content_Auditor();
+        $res     = $auditor->auto_optimize_post($post_id);
+
+        if (false === $res) {
+            wp_send_json_error(['message' => __('Could not optimize post.', 'ai-search-engines')]);
+        }
+
+        wp_send_json_success($res);
     }
 
     /**

@@ -41,8 +41,11 @@ class Post_Meta_Box {
 		echo '<div class="aise-meta-box-wrapper">';
 		
 		if ( '' === $score || false === $score ) {
-			echo '<p>' . esc_html__( 'Not yet audited.', 'ai-search-engines' ) . '</p>';
-			echo '<button type="button" class="button button-primary aise-run-audit" data-post-id="' . esc_attr( $post->ID ) . '">' . esc_html__( 'Run Audit', 'ai-search-engines' ) . '</button>';
+			echo '<p style="color: #666;">' . esc_html__( 'Not yet audited.', 'ai-search-engines' ) . '</p>';
+			echo '<div style="display: flex; gap: 8px;">';
+			echo '<button type="button" id="aise-reaudit-btn" class="button button-secondary aise-run-audit" data-post-id="' . esc_attr( $post->ID ) . '">' . esc_html__( 'Run Audit', 'ai-search-engines' ) . '</button>';
+			echo '<button type="button" class="button button-primary aise-auto-optimize-single" data-post-id="' . esc_attr( $post->ID ) . '">' . esc_html__( 'Auto-Optimize', 'ai-search-engines' ) . '</button>';
+			echo '</div>';
 		} else {
 			$score_class = 'red';
 			if ( $score >= 70 ) {
@@ -96,7 +99,10 @@ class Post_Meta_Box {
 				echo '</ul>';
 			}
 
-			echo '<button type="button" class="button button-secondary aise-run-audit" data-post-id="' . esc_attr( $post->ID ) . '">' . esc_html__( 'Re-audit', 'ai-search-engines' ) . '</button>';
+			echo '<div style="margin-top: 10px; display: flex; gap: 8px;">';
+			echo '<button type="button" id="aise-reaudit-btn" class="button button-secondary aise-run-audit" data-post-id="' . esc_attr( $post->ID ) . '">' . esc_html__( 'Re-audit', 'ai-search-engines' ) . '</button>';
+			echo '<button type="button" class="button button-primary aise-auto-optimize-single" data-post-id="' . esc_attr( $post->ID ) . '">' . esc_html__( 'Auto-Optimize', 'ai-search-engines' ) . '</button>';
+			echo '</div>';
 		}
 
 		echo '<hr />';

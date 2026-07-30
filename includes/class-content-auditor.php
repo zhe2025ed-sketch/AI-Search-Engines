@@ -304,4 +304,126 @@ class Content_Auditor {
 		
 		return $results;
 	}
+
+	/**
+	 * Auto-optimize a post's content and metadata to boost its AI readiness score.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array Updated audit results.
+	 */
+	public function auto_optimize_post( $post_id ) {
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return false;
+		}
+
+		$content = $post->post_content;
+		$title   = $post->post_title;
+		$modified = false;
+
+		// 1. Ensure Meta Description (Excerpt) exists and is 120-160 chars.
+		$excerpt = get_post_meta( $post_id, '_aioseo_description', true );
+		if ( empty( $excerpt ) ) {
+			$excerpt = $post->post_excerpt;
+		}
+		if ( empty( $excerpt ) || mb_strlen( trim( $excerpt ) ) < 120 ) {
+			$clean_text = trim( wp_strip_all_tags( $content ) );
+			if ( empty( $clean_text ) ) {
+				$clean_text = $title . ' — Overview and key information about ' . strtolower( $title ) . ' on ' . get_bloginfo( 'name' ) . '.';
+			}
+			if ( mb_strlen( $clean_text ) < 120 ) {
+				$pad = ' Read more to discover detailed guidance, insights, and structural facts regarding ' . strtolower( $title ) . '.';
+				$clean_text .= $pad;
+			}
+			$new_excerpt = mb_substr( $clean_text, 0, 155 );
+			if ( mb_strlen( $new_excerpt ) === 155 ) {
+				$new_excerpt = preg_replace( '/\s+\S*$/', '.', $new_excerpt );
+			}
+			wp_update_post( [
+				'ID'           => $post_id,
+				'post_excerpt' => $new_excerpt,
+			] );
+		}
+
+		// Reload post content
+		$post    = get_post( $post_id );
+		$content = $post->post_content;
+
+		// 2. Fix Intro Answer Paragraph (needs 40-300 chars, no ending '?')
+		$first_p = '';
+		if ( preg_match( '/<p[^>]*>(.*?)<\/p>/is', $content, $matches ) ) {
+			$first_p = trim( wp_strip_all_tags( $matches[1] ) );
+		}
+		$len = mb_strlen( $first_p );
+		if ( empty( $first_p ) || $len < 40 || $len > 300 || mb_substr( $first_p, -1 ) === '?' ) {
+			$intro_p = '<p>' . esc_html( $title ) . ' provides essential insights and structured guidance. This page outlines key definitions, step-by-step details, and important takeaways for ' . esc_html( strtolower( $title ) ) . '.</p>';
+			$content  = $intro_p . "\n\n" . $content;
+			$modified = true;
+		}
+
+		// 3. Fix Heading Structure (needs H2 question heading)
+		if ( ! preg_match( '/<h2[^>]*>/is', $content ) ) {
+			$h2_block = "\n\n<h2>What is " . esc_html( $title ) . "?</h2>\n";
+			if ( preg_match( '/<\/p>/is', $content, $p_match, PREG_OFFSET_CAPTURE ) ) {
+				$pos     = $p_match[0][1] + 4;
+				$content = substr_replace( $content, $h2_block, $pos, 0 );
+			} else {
+				$content .= $h2_block;
+			}
+			$modified = true;
+		}
+
+		// 4. Fix Image Alt Text
+		if ( preg_match_all( '/<img[^>]+>/is', $content, $img_matches ) ) {
+			foreach ( $img_matches[0] as $img_tag ) {
+				if ( ! preg_match( '/alt=["\'](.*?)["\']/is', $img_tag, $alt_match ) || trim( $alt_match[1] ) === '' ) {
+					$new_img_tag = preg_replace( '/<img/i', '<img alt="' . esc_attr( $title ) . '"', $img_tag, 1 );
+					$content     = str_replace( $img_tag, $new_img_tag, $content );
+					$modified    = true;
+				}
+			}
+		}
+
+		// Save updated content if modified
+		if ( $modified ) {
+			remove_action( 'save_post', [ $this, 'hook_save_post' ], 10 );
+			wp_update_post( [
+				'ID'           => $post_id,
+				'post_content' => $content,
+			] );
+			add_action( 'save_post', [ $this, 'hook_save_post' ], 10, 3 );
+		}
+
+		// 5. Enable FAQ and HowTo schema flags
+		update_post_meta( $post_id, '_aise_faq_sections', '1' );
+		update_post_meta( $post_id, '_aise_howto_enabled', '1' );
+
+		// Re-audit post and return fresh score
+		return $this->audit_post( $post_id );
+	}
+
+	/**
+	 * Auto-optimize all published posts of allowed types.
+	 *
+	 * @return array Map of [post_id => score]
+	 */
+	public function auto_optimize_all_posts() {
+		$allowed_types = get_option( 'aise_post_types', [ 'post', 'page' ] );
+		$args = [
+			'post_type'      => $allowed_types,
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+		];
+
+		$query   = new \WP_Query( $args );
+		$results = [];
+
+		foreach ( $query->posts as $post_id ) {
+			$audit_res           = $this->auto_optimize_post( $post_id );
+			$results[ $post_id ] = $audit_res['score'] ?? 0;
+		}
+
+		return $results;
+	}
 }
